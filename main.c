@@ -3,14 +3,15 @@
 #include <stdlib.h>
 #include <fcntl.h>
 
-// #define WRONG_USAGE_BEGIN "Wrong usage, should be: \""
-// #define WRONG_USAGE_END " <map_path>\"\n"
+#define MAP_PATH "/tmp/input.bsq"
 
+#define MAP_ERROR "map error\n"
 #define MALLOC_ERROR "malloc error\n"
 #define READ_ERROR "read error\n"
-#define MAP_ERROR "map error\n"
 #define OPEN_ERROR_INTRO "Can't open file \""
 #define OPEN_ERROR_END "\", exiting.\n"
+#define CREATE_ERROR_BEGIN "Can't create file \""
+#define CREATE_ERROR_END "\" which is require to launch the program.\n"
 #define PUT_FILE_INTRO "\tSolution of \""
 #define PUT_FILE_END "\":\n"
 
@@ -32,6 +33,12 @@
 #define SOLUTION_END "].\n"
 
 #define	BUF_SIZE 1024
+
+int			ft_map_error(void)
+{
+	write(1, MAP_ERROR, sizeof(MAP_ERROR) - 1);
+	return (0);
+}
 
 char		*ft_safe_malloc(size_t length)
 {
@@ -211,20 +218,13 @@ void		ft_tell_solution(int solution[3])
 
 int		check_provided_path(char *path)
 {
-	// if (ac != 2)
-	// {
-	// 	write(1, WRONG_USAGE_BEGIN, sizeof(WRONG_USAGE_BEGIN) - 1);
-	// 	write(1, av[0], ft_strlen(av[0]));
-	// 	write(1, WRONG_USAGE_END, sizeof(WRONG_USAGE_END) - 1);
-	// 	return (0);
-	// }
 	if (VERBOSE)
 		ft_tell_path(path);
 	return (1);
 }
 
 
-void		get_intro_2(const char *str, int *nb, int skip, int pattern[6])
+int 		get_intro_2(const char *str, int *nb, int skip, int pattern[6])
 {
 	char	*buffer;
 	int 	fd;
@@ -233,7 +233,7 @@ void		get_intro_2(const char *str, int *nb, int skip, int pattern[6])
 		map_error_exit();
 	buffer = ft_safe_malloc(skip);
 	if ((fd = open(str, O_RDONLY)) <= 0)
-		ft_open_error(str);
+		return (ft_map_error());
 	if ((read(fd, buffer, skip)) == -1)
 		write(1, READ_ERROR, sizeof(READ_ERROR)), exit(0);
 	close(fd);
@@ -245,9 +245,10 @@ void		get_intro_2(const char *str, int *nb, int skip, int pattern[6])
 	free(buffer);
 	if (VERBOSE)
 		ft_tell_intro_2(*nb, pattern);
+	return (1);
 }
 
-void		get_intro(const char *str, int *nb, int *skip, int pattern[6])
+int			get_intro(const char *str, int *nb, int *skip, int pattern[6])
 {
 	int		fd;
 	int		ret;
@@ -255,7 +256,7 @@ void		get_intro(const char *str, int *nb, int *skip, int pattern[6])
 	char	buffer[BUF_SIZE];
 
 	if ((fd = open(str, O_RDONLY)) <= 0)
-		ft_open_error(str);
+		return (ft_map_error());
 	*skip = 0;
 	ptr = NULL;
 	while ((ret = read(fd, buffer, BUF_SIZE)) == BUF_SIZE)
@@ -271,7 +272,7 @@ void		get_intro(const char *str, int *nb, int *skip, int pattern[6])
 	if (VERBOSE)
 		ft_tell_intro(*skip);
 	close(fd);
-	get_intro_2(str, nb, *skip, pattern);
+	return (get_intro_2(str, nb, *skip, pattern));
 }
 
 int			prepare_fd_skip(char *str, int skip)
@@ -279,7 +280,7 @@ int			prepare_fd_skip(char *str, int skip)
 	int		fd;
 
 	if ((fd = open(str, O_RDONLY)) <= 0)
-		ft_open_error(str);
+		return (ft_map_error());
 	str = ft_safe_malloc(skip + 1);
 	if (read(fd, str, skip + 1) == -1)
 	{
@@ -290,14 +291,15 @@ int			prepare_fd_skip(char *str, int skip)
 	return (fd);
 }
 
-void		get_length(char *str, int *length, int skip)
+int		get_length(char *str, int *length, int skip)
 {
 	int 	fd;
 	int		ret;
 	char	buffer[BUF_SIZE];
 	char	*ptr;
 
-	fd = prepare_fd_skip(str, skip);
+	if (!(fd = prepare_fd_skip(str, skip)))
+		return (ft_map_error());
 	*length = 0;
 	ptr = NULL;
 	while ((ret = read(fd, buffer, BUF_SIZE)) == BUF_SIZE)
@@ -313,6 +315,7 @@ void		get_length(char *str, int *length, int skip)
 		*length += ret;
 	if (VERBOSE)
 		ft_tell_length(*length);
+	return (1);
 }
 
 void		update_analyse(char *tmp, int *analyse, int length, int pattern[6])
@@ -333,7 +336,7 @@ void		update_analyse(char *tmp, int *analyse, int length, int pattern[6])
 		++i;
 	}
 }
-//990949199509699397999199999999999999
+
 void		ft_put_analyse(int *analyse, int length)
 {
 	write(1, "{ ", 2);
@@ -390,12 +393,14 @@ void		deduce_analyse(int *analyse, int length, int solution[3], int y)
 	}
 }
 
-void		solve(int fd, int length, int pattern[6], int nb)
+int			solve(int fd, int length, int pattern[6], int nb)
 {
 	char		*tmp;
 	int			*analyse;
 	int			i;
 
+	if (fd == 0)
+		return (0);
 	pattern[3] = 0;
 	pattern[4] = 0;
 	pattern[5] = 0;
@@ -420,6 +425,7 @@ void		solve(int fd, int length, int pattern[6], int nb)
 	if (read(fd, tmp, 1) == 1)
 		map_error_exit();
 	close(fd);
+	return (1);
 }
 
 void	put_solution(int fd, int solution[6], int length, int nb)
@@ -465,11 +471,11 @@ void	solve_map(char *path)
 	int		skip;
 
 
-	if (!check_provided_path(path))
+	if (!check_provided_path(path) ||
+		!get_intro(path, &nb, &skip, pattern) ||
+		!get_length(path, &length, skip) ||
+		!solve(prepare_fd_skip(path, skip), length, pattern, nb))
 		return ;
-	get_intro(path, &nb, &skip, pattern);
-	get_length(path, &length, skip);
-	solve(prepare_fd_skip(path, skip), length, pattern, nb);
 	if (VERBOSE)
 		ft_tell_solution(pattern + 3);
 	put_solution(prepare_fd_skip(path, skip), pattern, length, nb);	
@@ -482,23 +488,30 @@ void	put_file_path(char *str)
 	write(1, PUT_FILE_END, sizeof(PUT_FILE_END) - 1);
 }
 
+void	create_error(char *str)
+{
+	write(1, CREATE_ERROR_BEGIN, sizeof(CREATE_ERROR_BEGIN) - 1);
+	write(1, str, ft_strlen(str) - 1);
+	write(1, CREATE_ERROR_END, sizeof(CREATE_ERROR_END) - 1);
+	exit(1);
+}
+
+void	generate_map(void)
+{
+	char	buffer[BUF_SIZE];
+	int		ret;
+	int		fd;
+
+	if ((fd = open(MAP_PATH, O_WRONLY | O_CREAT | O_TRUNC)) <= 0)
+		create_error(MAP_PATH);
+	while ((ret = read(1, buffer, BUF_SIZE)))
+		write(fd, buffer, ret);
+	write(fd, buffer, ret);
+	close(fd);
+}
+
 int		main(int ac, char **av)
 {
-	// int		nb;
-	// int		length;
-	// int		pattern[6];
-	// int		skip;
-
-
-	// if (!check_provided_path(ac, av))
-	// 	return (1);
-	// get_intro(av[1], &nb, &skip, pattern);
-	// get_length(av[1], &length, skip);
-	// solve(prepare_fd_skip(av[1], skip), length, pattern, nb);
-	// if (VERBOSE)
-	// 	ft_tell_solution(pattern + 3);
-	// put_solution(prepare_fd_skip(av[1], skip), pattern, length, nb);
-
 	int		i;
 
 	if (ac > 1)
@@ -510,6 +523,14 @@ int		main(int ac, char **av)
 				put_file_path(av[i]);
 			solve_map(av[i++]);
 		}
+	}
+	else
+	{
+		generate_map();
+		solve_map(MAP_PATH);
+		if ((i = open(MAP_PATH, O_TRUNC)) <= 0)
+			create_error(MAP_PATH);
+		close(i);
 	}
 	return (0);
 }
