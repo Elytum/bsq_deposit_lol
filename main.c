@@ -411,7 +411,6 @@ void		solve(int fd, int length, int pattern[6], int nb)
 		if (read(fd, tmp, length + 1) < length + 1)
 			map_error_exit();
 		update_analyse(tmp, analyse, length, pattern);
-						ft_put_analyse(analyse, length);
 		deduce_analyse(analyse, length, pattern + 3, i);
 		++i;
 	}
