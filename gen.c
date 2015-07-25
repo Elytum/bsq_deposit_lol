@@ -1,6 +1,6 @@
-#define X 25000
-#define Y 25000
-#define D .5 * 100
+#define X 10000
+#define Y 10000
+#define D .05 * 100
 
 #define E '.'
 #define O 'o'

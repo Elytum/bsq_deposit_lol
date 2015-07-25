@@ -3,17 +3,19 @@
 #include <stdlib.h>
 #include <fcntl.h>
 
-#define WRONG_USAGE_BEGIN "Wrong usage, should be: \""
-#define WRONG_USAGE_END " <map_path>\"\n"
+// #define WRONG_USAGE_BEGIN "Wrong usage, should be: \""
+// #define WRONG_USAGE_END " <map_path>\"\n"
 
 #define MALLOC_ERROR "malloc error\n"
 #define READ_ERROR "read error\n"
 #define MAP_ERROR "map error\n"
 #define OPEN_ERROR_INTRO "Can't open file \""
 #define OPEN_ERROR_END "\", exiting.\n"
+#define PUT_FILE_INTRO "\tSolution of \""
+#define PUT_FILE_END "\":\n"
 
 #include <stdio.h>
-#define VERBOSE 1
+#define VERBOSE 0
 
 #define MAP_PATH_BEGIN "Opening map \""
 #define MAP_PATH_END "\".\n"
@@ -207,17 +209,17 @@ void		ft_tell_solution(int solution[3])
 	write(1, SOLUTION_END, sizeof(SOLUTION_END));
 }
 
-int		check_provided_path(int ac, char **av)
+int		check_provided_path(char *path)
 {
-	if (ac != 2)
-	{
-		write(1, WRONG_USAGE_BEGIN, sizeof(WRONG_USAGE_BEGIN) - 1);
-		write(1, av[0], ft_strlen(av[0]));
-		write(1, WRONG_USAGE_END, sizeof(WRONG_USAGE_END) - 1);
-		return (0);
-	}
+	// if (ac != 2)
+	// {
+	// 	write(1, WRONG_USAGE_BEGIN, sizeof(WRONG_USAGE_BEGIN) - 1);
+	// 	write(1, av[0], ft_strlen(av[0]));
+	// 	write(1, WRONG_USAGE_END, sizeof(WRONG_USAGE_END) - 1);
+	// 	return (0);
+	// }
 	if (VERBOSE)
-		ft_tell_path(av[1]);
+		ft_tell_path(path);
 	return (1);
 }
 
@@ -274,7 +276,6 @@ void		get_intro(const char *str, int *nb, int *skip, int pattern[6])
 
 int			prepare_fd_skip(char *str, int skip)
 {
-	char	*tmp;
 	int		fd;
 
 	if ((fd = open(str, O_RDONLY)) <= 0)
@@ -456,20 +457,59 @@ void	put_solution(int fd, int solution[6], int length, int nb)
 	close(fd);
 }
 
-int		main(int ac, char **av)
+void	solve_map(char *path)
 {
 	int		nb;
 	int		length;
 	int		pattern[6];
 	int		skip;
 
-	if (!check_provided_path(ac, av))
-		return (1);
-	get_intro(av[1], &nb, &skip, pattern);
-	get_length(av[1], &length, skip);
-	solve(prepare_fd_skip(av[1], skip), length, pattern, nb);
+
+	if (!check_provided_path(path))
+		return ;
+	get_intro(path, &nb, &skip, pattern);
+	get_length(path, &length, skip);
+	solve(prepare_fd_skip(path, skip), length, pattern, nb);
 	if (VERBOSE)
 		ft_tell_solution(pattern + 3);
-	put_solution(prepare_fd_skip(av[1], skip), pattern, length, nb);
+	put_solution(prepare_fd_skip(path, skip), pattern, length, nb);	
+}
+
+void	put_file_path(char *str)
+{
+	write(1, PUT_FILE_INTRO, sizeof(PUT_FILE_INTRO) - 1);
+	write(1, str, ft_strlen(str));
+	write(1, PUT_FILE_END, sizeof(PUT_FILE_END) - 1);
+}
+
+int		main(int ac, char **av)
+{
+	// int		nb;
+	// int		length;
+	// int		pattern[6];
+	// int		skip;
+
+
+	// if (!check_provided_path(ac, av))
+	// 	return (1);
+	// get_intro(av[1], &nb, &skip, pattern);
+	// get_length(av[1], &length, skip);
+	// solve(prepare_fd_skip(av[1], skip), length, pattern, nb);
+	// if (VERBOSE)
+	// 	ft_tell_solution(pattern + 3);
+	// put_solution(prepare_fd_skip(av[1], skip), pattern, length, nb);
+
+	int		i;
+
+	if (ac > 1)
+	{
+		i = 1;
+		while (i < ac)
+		{
+			if (ac != 2)
+				put_file_path(av[i]);
+			solve_map(av[i++]);
+		}
+	}
 	return (0);
 }
