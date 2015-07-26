@@ -1,5 +1,5 @@
-#define X 10000
-#define Y 10000
+#define X 100000
+#define Y 100000
 #define D .05 * 100
 
 #define E '.'
