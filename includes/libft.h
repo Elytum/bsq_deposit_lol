@@ -1,7 +1,19 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   libft.h                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: achazal <marvin@42.fr>                     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2015/07/26 02:55:27 by achazal           #+#    #+#             */
+/*   Updated: 2015/07/26 02:55:29 by achazal          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef LIBFT_H
 # define LIBFT_H
 
-#include <sys/types.h>
+# include <sys/types.h>
 
 int		ft_atoi(const char *str);
 char	*ft_strchr(const char *str, char c);

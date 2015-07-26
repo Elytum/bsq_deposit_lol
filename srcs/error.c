@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   error.h                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: achazal <marvin@42.fr>                     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2015/07/26 02:55:27 by achazal           #+#    #+#             */
+/*   Updated: 2015/07/26 02:55:29 by achazal          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <config.h>
 #include <libft.h>
 #include <unistd.h>
@@ -9,24 +21,18 @@ int			ft_map_error(void)
 	return (0);
 }
 
-void		map_error_exit(void)
-{
-	write(1, MAP_ERROR, sizeof(MAP_ERROR) - 1);
-	exit(0);
-}
-
-void		ft_open_error(const char *str)
-{
-	write(1, OPEN_ERROR_INTRO, sizeof(OPEN_ERROR_INTRO));
-	write(1, str, ft_strlen(str));
-	write(1, OPEN_ERROR_END, sizeof(OPEN_ERROR_END));
-	exit(1);
-}
-
-void	create_error(char *str)
+void		create_error(char *str)
 {
 	write(1, CREATE_ERROR_BEGIN, sizeof(CREATE_ERROR_BEGIN) - 1);
 	write(1, str, ft_strlen(str) - 1);
 	write(1, CREATE_ERROR_END, sizeof(CREATE_ERROR_END) - 1);
 	exit(1);
+}
+
+int			solve_error_loop(int fd, char *tmp, int *analyse)
+{
+	close(fd);
+	free(tmp);
+	free(analyse);
+	return (ft_map_error());
 }

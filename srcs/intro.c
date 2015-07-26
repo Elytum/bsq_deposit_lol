@@ -1,11 +1,26 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   intro.h                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: achazal <marvin@42.fr>                     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2015/07/26 02:55:27 by achazal           #+#    #+#             */
+/*   Updated: 2015/07/26 02:55:29 by achazal          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <bsq.h>
 #include <libft.h>
 #include <config.h>
 #include <fcntl.h>
+#include <stddef.h>
+#include <unistd.h>
+#include <stdlib.h>
 
 int		get_length(char *str, int *length, int skip)
 {
-	int 	fd;
+	int		fd;
 	int		ret;
 	char	buffer[BUF_SIZE];
 	char	*ptr;
@@ -17,7 +32,7 @@ int		get_length(char *str, int *length, int skip)
 	while ((ret = read(fd, buffer, BUF_SIZE)) == BUF_SIZE)
 	{
 		if ((ptr = ft_strnchr(buffer, '\n', BUF_SIZE)))
-			break;
+			break ;
 		*length += BUF_SIZE;
 	}
 	close(fd);
@@ -30,18 +45,22 @@ int		get_length(char *str, int *length, int skip)
 	return (1);
 }
 
-int 	get_intro_2(const char *str, int *nb, int skip, int pattern[6])
+int		get_intro_2(const char *str, int *nb, int skip, int pattern[6])
 {
 	char	*buffer;
-	int 	fd;
+	int		fd;
 
 	if (skip <= 3)
-		map_error_exit();
+		return (ft_map_error());
 	buffer = ft_safe_malloc(skip);
 	if ((fd = open(str, O_RDONLY)) <= 0)
 		return (ft_map_error());
 	if ((read(fd, buffer, skip)) == -1)
-		write(1, READ_ERROR, sizeof(READ_ERROR)), exit(0);
+	{
+		write(1, READ_ERROR, sizeof(READ_ERROR));
+		close(fd);
+		return (0);
+	}
 	close(fd);
 	pattern[0] = buffer[skip - 3];
 	pattern[1] = buffer[skip - 2];
@@ -68,7 +87,7 @@ int		get_intro(const char *str, int *nb, int *skip, int pattern[6])
 	while ((ret = read(fd, buffer, BUF_SIZE)) == BUF_SIZE)
 	{
 		if ((ptr = ft_strnchr(buffer, '\n', BUF_SIZE)))
-			break;
+			break ;
 		*skip += BUF_SIZE;
 	}
 	if (ptr || (ptr = ft_strnchr(buffer, '\n', BUF_SIZE)))

@@ -1,10 +1,24 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   tool.h                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: achazal <marvin@42.fr>                     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2015/07/26 02:55:27 by achazal           #+#    #+#             */
+/*   Updated: 2015/07/26 02:55:29 by achazal          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <bsq.h>
 #include <config.h>
 #include <libft.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <unistd.h>
+#include <stdlib.h>
 
-int			prepare_fd_skip(char *str, int skip)
+int		prepare_fd_skip(char *str, int skip)
 {
 	int		fd;
 
@@ -14,15 +28,15 @@ int			prepare_fd_skip(char *str, int skip)
 	if (read(fd, str, skip + 1) == -1)
 	{
 		write(1, READ_ERROR, sizeof(READ_ERROR));
-		exit(0);
+		return (0);
 	}
 	free(str);
 	return (fd);
 }
 
-char		*ft_safe_malloc(size_t length)
+char	*ft_safe_malloc(size_t length)
 {
-	char		*ptr;
+	char	*ptr;
 
 	if (!(ptr = (char *)malloc(sizeof(char) * (length + 1))))
 	{

@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   libft.h                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: achazal <marvin@42.fr>                     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2015/07/26 02:55:27 by achazal           #+#    #+#             */
+/*   Updated: 2015/07/26 02:55:29 by achazal          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <unistd.h>
 
 size_t		ft_strlen(const char *str)
@@ -18,30 +30,28 @@ void		ft_memset(char *str, char c, size_t len)
 
 void		ft_putnbr(int nb)
 {
-	char		buffer[11];
+	char		buffer[12];
 	char		*ptr;
-	int			negatif;
 
 	if (nb == -2147483648)
-		write(1, "–2147483648", sizeof("–2147483648"));
+		write(1, "-2147483648", sizeof("-2147483648"));
 	else if (nb == 0)
 		write(1, "0", 1);
 	else
 	{
 		ptr = buffer + sizeof(buffer) - 1;
+		buffer[0] = 0;
 		if (nb < 0)
 		{
-			negatif = 1;
+			buffer[0] = 1;
 			nb = -nb;
 		}
-		else
-			negatif = 0;
 		while (nb > 0)
 		{
 			*ptr-- = nb % 10 + '0';
 			nb /= 10;
 		}
-		if (negatif)
+		if (buffer[0])
 			*ptr-- = '-';
 		write(1, ptr + 1, sizeof(buffer) - (long)ptr + (long)buffer - 1);
 	}
